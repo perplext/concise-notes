@@ -1,0 +1,99 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+dist-electron/
+ui/dist/
+ui/dist-electron/
+ui/release/
+ui/build/
+batch_output/
+*.local
+
+# Models (large binary files)
+models/
+*.bin
+*.ggml
+*.gguf
+
+# Test files
+test_*.aiff
+test_*.txt
+test_*.wav
+test_*.mp4
+test_*.srt
+test_*.vtt
+test_batch_dir/
+batch_report.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+*.temp
+
+# Vite
+.vite/
+ui/.vite/
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Cache
+.cache/
+.parcel-cache/
+.sass-cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Audio/Video files (usually test files)
+*.wav
+*.mp3
+*.aiff
+*.m4a
+*.mp4
+*.avi
+*.mov
+*.mkv
+!ui/public/audio/*.wav
+
+# Backup files
+*.backup
+*.bak
+*~

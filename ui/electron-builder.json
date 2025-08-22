@@ -1,0 +1,111 @@
+{
+  "appId": "com.concisenote.taker",
+  "productName": "Concise Note Taker",
+  "directories": {
+    "output": "dist-electron"
+  },
+  "files": [
+    "dist/**/*",
+    "electron-main.cjs",
+    "electron-preload.cjs",
+    "electron-whisper.cjs",
+    "node_modules/**/*",
+    "!node_modules/**/test/**",
+    "!node_modules/**/*.md",
+    "!node_modules/**/*.map",
+    "!node_modules/**/.github/**"
+  ],
+  "extraResources": [
+    {
+      "from": "../models",
+      "to": "models",
+      "filter": ["*.bin"]
+    }
+  ],
+  "mac": {
+    "category": "public.app-category.productivity",
+    "icon": "build-assets/icon.icns",
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "entitlements": "build-assets/entitlements.mac.plist",
+    "entitlementsInherit": "build-assets/entitlements.mac.plist",
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "zip",
+        "arch": ["x64", "arm64"]
+      }
+    ]
+  },
+  "dmg": {
+    "contents": [
+      {
+        "x": 130,
+        "y": 220
+      },
+      {
+        "x": 410,
+        "y": 220,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ]
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build-assets/icon.ico"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "installerIcon": "build-assets/icon.ico",
+    "uninstallerIcon": "build-assets/icon.ico",
+    "license": "build-assets/license.txt"
+  },
+  "linux": {
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64"]
+      },
+      {
+        "target": "deb",
+        "arch": ["x64"]
+      },
+      {
+        "target": "rpm",
+        "arch": ["x64"]
+      },
+      {
+        "target": "snap",
+        "arch": ["x64"]
+      }
+    ],
+    "category": "AudioVideo",
+    "icon": "build-assets/icon.png",
+    "synopsis": "Transcribe audio and video files locally using Whisper AI",
+    "description": "A desktop application for transcribing audio and video files using OpenAI's Whisper model, running completely offline on your local machine."
+  },
+  "appImage": {
+    "systemIntegration": "doNotAsk"
+  },
+  "publish": {
+    "provider": "github",
+    "owner": "your-github-username",
+    "repo": "concise-note-taker"
+  }
+}

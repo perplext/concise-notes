@@ -1,0 +1,41 @@
+{
+  "name": "concise-note-taker-desktop",
+  "version": "0.1.0",
+  "description": "Desktop version of Concise Note Taker with local Whisper models",
+  "main": "electron-main.js",
+  "scripts": {
+    "electron": "electron .",
+    "electron-dev": "NODE_ENV=development electron .",
+    "build-electron": "npm run build && electron-builder",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.concise-note-taker.desktop",
+    "productName": "Concise Note Taker",
+    "directories": {
+      "output": "electron-dist"
+    },
+    "files": [
+      "dist/**/*",
+      "electron-main.js",
+      "electron-preload.js",
+      "../models/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "dependencies": {
+    "smart-whisper-electron": "^0.8.2"
+  }
+}
