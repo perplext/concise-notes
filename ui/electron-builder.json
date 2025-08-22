@@ -1,8 +1,8 @@
 {
-  "appId": "com.concisenote.taker",
-  "productName": "Concise Note Taker",
+  "appId": "com.concisenotes.app",
+  "productName": "Concise Notes",
   "directories": {
-    "output": "dist-electron"
+    "output": "release"
   },
   "files": [
     "dist/**/*",
@@ -105,7 +105,7 @@
   },
   "publish": {
     "provider": "github",
-    "owner": "your-github-username",
-    "repo": "concise-note-taker"
+    "owner": "perplext",
+    "repo": "concise-notes"
   }
 }

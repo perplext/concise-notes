@@ -1,4 +1,4 @@
-# Concise Note Taker
+# Concise Notes
 
 A powerful desktop application for transcribing audio and video files using OpenAI's Whisper model. Create concise notes from audio and video files completely offline with no API costs.
 

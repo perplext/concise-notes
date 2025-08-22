@@ -1,0 +1,196 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+            ext: AppImage
+          - os: macos-latest
+            platform: darwin
+            arch: x64
+            ext: dmg
+          - os: macos-latest
+            platform: darwin
+            arch: arm64
+            ext: dmg
+          - os: windows-latest
+            platform: win32
+            arch: x64
+            ext: exe
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./ui
+        run: npm ci
+
+      - name: Build application
+        working-directory: ./ui
+        run: npm run build
+
+      # Linux specific build
+      - name: Build Linux AppImage
+        if: matrix.platform == 'linux'
+        working-directory: ./ui
+        run: |
+          npm run dist:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # macOS x64 specific build
+      - name: Build macOS x64
+        if: matrix.platform == 'darwin' && matrix.arch == 'x64'
+        working-directory: ./ui
+        run: |
+          npm run dist:mac -- --x64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      # macOS arm64 specific build
+      - name: Build macOS arm64
+        if: matrix.platform == 'darwin' && matrix.arch == 'arm64'
+        working-directory: ./ui
+        run: |
+          npm run dist:mac -- --arm64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      # Windows specific build
+      - name: Build Windows installer
+        if: matrix.platform == 'win32'
+        working-directory: ./ui
+        run: |
+          npm run dist:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload artifacts
+      - name: Upload Linux artifacts
+        if: matrix.platform == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Concise-Notes-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            ui/release/*.AppImage
+            ui/release/*.deb
+            ui/release/*.rpm
+            ui/release/*.snap
+
+      - name: Upload macOS artifacts
+        if: matrix.platform == 'darwin'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Concise-Notes-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            ui/release/*.dmg
+            ui/release/*.zip
+
+      - name: Upload Windows artifacts
+        if: matrix.platform == 'win32'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Concise-Notes-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            ui/release/*.exe
+            ui/release/*.msi
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Concise Notes ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          body: |
+            # Concise Notes ${{ github.ref_name }}
+            
+            ## Downloads
+            
+            ### Windows
+            - **Installer**: `Concise-Notes-Setup-*.exe`
+            
+            ### macOS
+            - **Intel**: `Concise-Notes-*-x64.dmg`
+            - **Apple Silicon**: `Concise-Notes-*-arm64.dmg`
+            
+            ### Linux
+            - **AppImage**: `Concise-Notes-*.AppImage` (Universal)
+            - **Debian/Ubuntu**: `concise-notes_*.deb`
+            - **RedHat/Fedora**: `concise-notes-*.rpm`
+            
+            ## Installation
+            
+            ### Windows
+            Download and run the `.exe` installer.
+            
+            ### macOS
+            Download the appropriate `.dmg` file for your processor, open it, and drag the app to Applications.
+            
+            ### Linux
+            - **AppImage**: Make executable with `chmod +x *.AppImage` and run
+            - **DEB**: Install with `sudo dpkg -i *.deb`
+            - **RPM**: Install with `sudo rpm -i *.rpm`
+            
+            ## Features
+            - Transcribe audio/video files using OpenAI Whisper
+            - Batch processing support
+            - Real-time microphone transcription
+            - AI-powered summaries
+            - Cross-platform keyboard shortcuts
+            - Beautiful NextUI interface
+
+      - name: Upload Release Assets
+        run: |
+          for artifact in ./artifacts/*/*; do
+            if [ -f "$artifact" ]; then
+              echo "Uploading $artifact"
+              gh release upload ${{ github.ref_name }} "$artifact" --clobber
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
